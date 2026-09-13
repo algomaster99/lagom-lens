@@ -30,7 +30,7 @@
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "Svenska Subs"
+    "default_title": "Lagom Lens"
   },
   "icons": {
     "16": "icons/icon16.png",
@@ -39,7 +39,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "lagom-lens@svenska-subs",
+      "id": "{948d675c-afb2-11f1-b390-70d823f675f2}",
       "strict_min_version": "109.0"
     }
   }
