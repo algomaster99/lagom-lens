@@ -8,8 +8,7 @@
     "https://*.youtube.com/*",
     "https://*.svtplay.se/*",
     "https://api.mymemory.translated.net/*",
-    "https://api-free.deepl.com/*",
-    "https://lingva.ml/*"
+    "https://api-free.deepl.com/*"
   ],
   "background": {
     "service_worker": "src/background.js",
