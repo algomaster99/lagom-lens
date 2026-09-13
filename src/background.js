@@ -17,32 +17,8 @@ async function translateWithMyMemory(word, settings) {
   return { text, raw: data };
 }
 
-async function translateWithDeepL(word, settings) {
-  // DeepL's free API endpoint; requires the user's own API key.
-  const res = await fetch("https://api-free.deepl.com/v2/translate", {
-    method: "POST",
-    headers: {
-      Authorization: `DeepL-Auth-Key ${settings.deeplApiKey}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      text: word,
-      source_lang: settings.sourceLang.toUpperCase(),
-      target_lang: settings.targetLang.toUpperCase(),
-    }),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  const text = data?.translations?.[0]?.text;
-  if (!text) throw new Error("no translation returned");
-  return { text, raw: data };
-}
-
 async function handleTranslateRequest({ word, settings }) {
   try {
-    if (settings.provider === "deepl" && settings.deeplApiKey) {
-      return await translateWithDeepL(word, settings);
-    }
     return await translateWithMyMemory(word, settings);
   } catch (err) {
     return { text: null, error: err.message || "lookup failed" };

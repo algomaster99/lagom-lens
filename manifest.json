@@ -7,8 +7,7 @@
   "host_permissions": [
     "https://*.youtube.com/*",
     "https://*.svtplay.se/*",
-    "https://api.mymemory.translated.net/*",
-    "https://api-free.deepl.com/*"
+    "https://api.mymemory.translated.net/*"
   ],
   "background": {
     "service_worker": "src/background.js",

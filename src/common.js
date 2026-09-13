@@ -8,8 +8,6 @@ const LagomLens = (() => {
     enabled: true,
     sourceLang: "sv",
     targetLang: "en",
-    provider: "mymemory", // 'mymemory' (no key) or 'deepl' (needs key)
-    deeplApiKey: "",
   };
 
   let settingsCache = null;

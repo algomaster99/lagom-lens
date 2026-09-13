@@ -6,9 +6,6 @@ Hover a word in Swedish subtitles (YouTube or SVT Play) to see an English transl
 It works by manipulating the DOM elements of the page and then querying
 https://mymemory.translated.net/ for translations.
 
-> [!WARNING]
-> DeepL Translator is not tested yet!
-
 ## Why?
 
 I was tired of having to pause videos, type words into my translator, and then resume the video.
