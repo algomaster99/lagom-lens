@@ -1,24 +1,109 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0090D0"/>
-      <stop offset="1" stop-color="#00579C"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 128 128"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview24"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="6.2359589"
+     inkscape:cx="54.362129"
+     inkscape:cy="68.072931"
+     inkscape:window-width="1854"
+     inkscape:window-height="1131"
+     inkscape:window-x="66"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg22" />
+  <defs
+     id="defs12">
+    <linearGradient
+       id="ring"
+       x1="19.5"
+       y1="9.5"
+       x2="104.5"
+       y2="94.5"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(3,2.92288)">
+      <stop
+         offset="0"
+         stop-color="#0090D0"
+         id="stop2" />
+      <stop
+         offset="1"
+         stop-color="#00579C"
+         id="stop4" />
     </linearGradient>
-    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F3FAFF"/>
-      <stop offset="1" stop-color="#D5ECFB"/>
+    <linearGradient
+       id="glass"
+       x1="19.5"
+       y1="9.5"
+       x2="104.5"
+       y2="94.5"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(3,2.92288)">
+      <stop
+         offset="0"
+         stop-color="#F3FAFF"
+         id="stop7" />
+      <stop
+         offset="1"
+         stop-color="#D5ECFB"
+         id="stop9" />
     </linearGradient>
   </defs>
-
   <!-- handle: overlaps the ring edge so it reads as one magnifying glass -->
-  <rect x="40.8" y="65.2" width="50" height="16" rx="8"
-        transform="rotate(135 40.8 73.2)"
-        fill="#FECC00"/>
-
   <!-- ring -->
-  <circle cx="62" cy="52" r="36" fill="url(#glass)" stroke="url(#ring)" stroke-width="13"/>
-
   <!-- subtitle lines inside the lens -->
-  <rect x="40" y="45" width="44" height="8.5" rx="4.25" fill="#00579C"/>
-  <rect x="46" y="60" width="30" height="8.5" rx="4.25" fill="#FECC00"/>
+  <g
+     id="g357"
+     transform="translate(7.2028788,0.87423867)">
+    <rect
+       x="22.855726"
+       y="-92.798286"
+       width="50"
+       height="16"
+       rx="8"
+       transform="rotate(135)"
+       fill="#fecc00"
+       id="rect14" />
+    <circle
+       cx="65"
+       cy="54.922878"
+       r="36"
+       fill="url(#glass)"
+       stroke="url(#ring)"
+       stroke-width="13"
+       id="circle16"
+       style="fill:url(#glass);stroke:url(#ring)" />
+    <rect
+       x="43"
+       y="47.922878"
+       width="44"
+       height="8.5"
+       rx="4.25"
+       fill="#00579c"
+       id="rect18" />
+    <rect
+       x="49"
+       y="62.922878"
+       width="30"
+       height="8.5"
+       rx="4.25"
+       fill="#fecc00"
+       id="rect20" />
+  </g>
 </svg>
