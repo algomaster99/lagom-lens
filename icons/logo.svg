@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0090D0"/>
+      <stop offset="1" stop-color="#00579C"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F3FAFF"/>
+      <stop offset="1" stop-color="#D5ECFB"/>
+    </linearGradient>
+  </defs>
+
+  <!-- handle: overlaps the ring edge so it reads as one magnifying glass -->
+  <rect x="40.8" y="65.2" width="50" height="16" rx="8"
+        transform="rotate(135 40.8 73.2)"
+        fill="#FECC00"/>
+
+  <!-- ring -->
+  <circle cx="62" cy="52" r="36" fill="url(#glass)" stroke="url(#ring)" stroke-width="13"/>
+
+  <!-- subtitle lines inside the lens -->
+  <rect x="40" y="45" width="44" height="8.5" rx="4.25" fill="#00579C"/>
+  <rect x="46" y="60" width="30" height="8.5" rx="4.25" fill="#FECC00"/>
+</svg>

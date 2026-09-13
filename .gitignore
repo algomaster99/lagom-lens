@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node (if tooling is added later)
+node_modules/
+npm-debug.log*
+
+# Packaged extension artifacts
+*.zip
+*.xpi
+*.crx
+web-ext-artifacts/
+
+# Local env / secrets
+.env
+.env.local

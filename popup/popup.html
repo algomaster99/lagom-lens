@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Svenska Subs</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <h1>Svenska Subs</h1>
+
+  <label class="row">
+    <span>Enabled</span>
+    <input type="checkbox" id="enabled" />
+  </label>
+
+  <div class="row">
+    <span>Provider</span>
+    <select id="provider">
+      <option value="mymemory">MyMemory (free, no key)</option>
+      <option value="deepl">DeepL (needs API key)</option>
+    </select>
+  </div>
+
+  <div class="row" id="deeplRow" style="display: none">
+    <span>DeepL API key</span>
+    <input type="password" id="deeplApiKey" placeholder="xxxxxxxx-xxxx-..." />
+  </div>
+
+  <p class="hint">
+    Hover a word in the subtitles to see its translation.
+  </p>
+
+  <p class="status" id="status"></p>
+
+  <script src="popup.js"></script>
+</body>
+</html>
