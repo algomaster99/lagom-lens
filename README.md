@@ -30,7 +30,7 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (top right)
 3. Click **Load unpacked**
-4. Select this folder (`svenska-subs`)
+4. Select this folder (`lagom-lens`)
 5. Open a Swedish YouTube video or an SVT Play video, turn on subtitles
 
 ## Install (Firefox)

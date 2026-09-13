@@ -18,7 +18,7 @@
 // like a deliberate test/routing attribute, much less likely to change on
 // a redesign than an auto-generated class like "css-17nsyyn".
 
-window.SvenskaSubsSite = (() => {
+window.LagomLensSite = (() => {
   const CONTAINER_SELECTOR = '[data-rt="subtitles-container"]';
 
   // Fallback heuristic kept in case SVT changes markup and drops data-rt.
@@ -47,7 +47,7 @@ window.SvenskaSubsSite = (() => {
     });
     observer.observe(container, { childList: true, subtree: true, characterData: true });
     onSubtitleNode(container);
-    console.log("[Svenska Subs] watching SVT Play subtitles via", label);
+    console.log("[Lagom Lens] watching SVT Play subtitles via", label);
   }
 
   function observe(onSubtitleNode) {
@@ -71,7 +71,7 @@ window.SvenskaSubsSite = (() => {
 
       if (attempts >= maxAttempts) {
         console.warn(
-          "[Svenska Subs] couldn't find SVT Play subtitles after",
+          "[Lagom Lens] couldn't find SVT Play subtitles after",
           attempts,
           "attempts."
         );

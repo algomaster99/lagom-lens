@@ -3,7 +3,7 @@
 // These get destroyed and recreated frequently, so we watch broadly and
 // re-process whatever segment nodes show up.
 
-window.SvenskaSubsSite = (() => {
+window.LagomLensSite = (() => {
   const CONTAINER_SELECTOR = ".ytp-caption-window-container";
   const SEGMENT_SELECTOR = ".ytp-caption-segment";
 

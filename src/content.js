@@ -1,4 +1,4 @@
-// Site-agnostic glue: expects window.SvenskaSubsSite to be defined by the
+// Site-agnostic glue: expects window.LagomLensSite to be defined by the
 // per-site script (src/sites/youtube.js or svtplay.js) with:
 //   { findContainer(): Element|null, observe(onSubtitleNode): void }
 
@@ -65,7 +65,7 @@
     clearTimeout(hideTimer);
     const word = el.dataset.svsWord;
     showLoading(el);
-    const result = await SvenskaSubs.translateWord(word);
+    const result = await LagomLens.translateWord(word);
     // Guard against the user having moved off before the lookup resolved.
     if (el.matches(":hover")) {
       showResult(el, word, result);
@@ -87,22 +87,22 @@
 
   function onSubtitleNode(node) {
     if (!enabled || !node) return;
-    SvenskaSubs.wrapWordsIn(node);
+    LagomLens.wrapWordsIn(node);
   }
 
   async function init() {
-    const settings = await SvenskaSubs.getSettings();
+    const settings = await LagomLens.getSettings();
     enabled = settings.enabled;
 
-    if (!window.SvenskaSubsSite) {
-      console.warn("[Svenska Subs] no site adapter loaded for this page");
+    if (!window.LagomLensSite) {
+      console.warn("[Lagom Lens] no site adapter loaded for this page");
       return;
     }
 
     attachHoverListeners(document.body);
-    window.SvenskaSubsSite.observe(onSubtitleNode);
+    window.LagomLensSite.observe(onSubtitleNode);
 
-    console.log("[Svenska Subs] active on", location.hostname);
+    console.log("[Lagom Lens] active on", location.hostname);
   }
 
   browserAPI.storage.onChanged.addListener((changes, area) => {

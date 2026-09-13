@@ -1,7 +1,7 @@
 // Shared helpers: settings storage + translation lookups + tiny cache.
 // Loaded before the site-specific script and content.js on every page.
 
-const SvenskaSubs = (() => {
+const LagomLens = (() => {
   const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
   const DEFAULT_SETTINGS = {
