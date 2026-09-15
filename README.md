@@ -1,9 +1,9 @@
 # <img src="icons/logo.svg" alt="Lagom Lens logo" width="32" align="left" /> Lagom Lens
 
-Lagom Lens is a minimal browser extension which helps you to learn Swedish.
-Hover a word in Swedish subtitles (YouTube or SVT Play) to see a translation in your chosen language.
+<sub>🇸🇪 Svenska · 🇬🇧 English · 🇪🇸 Español · 🇩🇪 Deutsch · 🇫🇷 Français · 🇮🇹 Italiano · 🇵🇹 Português · 🇳🇱 Nederlands · 🇵🇱 Polski · 🇷🇺 Русский · 🇯🇵 日本語 · 🇨🇳 中文 · 🇮🇳 हिन्दी</sub>
 
-<sub>Translate to: 🇬🇧 English · 🇪🇸 Español · 🇩🇪 Deutsch · 🇫🇷 Français · 🇮🇹 Italiano · 🇵🇹 Português · 🇳🇱 Nederlands · 🇵🇱 Polski · 🇷🇺 Русский · 🇯🇵 日本語 · 🇨🇳 中文 · 🇮🇳 हिन्दी</sub>
+Lagom Lens is a minimal browser extension which helps you to learn a new language.
+Hover a word in subtitles (YouTube or SVT Play) to see a translation in your chosen language.
 
 
 It works by manipulating the DOM elements of the page and then querying

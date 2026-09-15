@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lagom Lens",
   "version": "0.1.0",
-  "description": "Hover over Swedish subtitles on YouTube and SVT Play to see translation in your chosen language.",
+  "description": "Hover over subtitles on YouTube and SVT Play to see translation in your chosen language.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://*.youtube.com/*",

@@ -18,6 +18,9 @@ async function translateWithMyMemory(word, settings) {
 }
 
 async function handleTranslateRequest({ word, settings }) {
+  if (settings.sourceLang === settings.targetLang) {
+    return { text: word, raw: null };
+  }
   try {
     return await translateWithMyMemory(word, settings);
   } catch (err) {
