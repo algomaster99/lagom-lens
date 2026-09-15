@@ -8,6 +8,23 @@
   let tooltip = null;
   let hideTimer = null;
   let enabled = true;
+  let activeLineEl = null;
+
+  // Highlight every word in the line rather than toggling a class on the ancestor container.
+  function setActiveLine(lineEl) {
+    if (activeLineEl === lineEl) return;
+    if (activeLineEl) {
+      activeLineEl
+        .querySelectorAll(".svs-word")
+        .forEach((w) => w.classList.remove("svs-line-active"));
+    }
+    activeLineEl = lineEl;
+    if (activeLineEl) {
+      activeLineEl
+        .querySelectorAll(".svs-word")
+        .forEach((w) => w.classList.add("svs-line-active"));
+    }
+  }
 
   function ensureTooltip() {
     if (tooltip) return tooltip;
@@ -55,6 +72,7 @@
 
   function hideTooltip() {
     if (tooltip) tooltip.style.display = "none";
+    setActiveLine(null);
   }
 
   async function handleWordHover(e) {
@@ -63,12 +81,20 @@
     if (!el) return;
 
     clearTimeout(hideTimer);
-    const word = el.dataset.svsWord;
+
+    let text = el.dataset.svsWord;
+    let lineEl = null;
+    if (e.shiftKey) {
+      lineEl = el.closest("[data-svs-line]");
+      if (lineEl) text = lineEl.dataset.svsLine;
+    }
+    setActiveLine(lineEl);
+
     showLoading(el);
-    const result = await LagomLens.translateWord(word);
+    const result = await LagomLens.translateWord(text);
     // Guard against the user having moved off before the lookup resolved.
     if (el.matches(":hover")) {
-      showResult(el, word, result);
+      showResult(el, text, result);
     }
   }
 

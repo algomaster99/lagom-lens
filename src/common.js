@@ -115,6 +115,9 @@ const LagomLens = (() => {
   // without silently ignoring genuinely new text).
   function wrapWordsIn(el) {
     if (!el) return;
+    const lineText = (el.innerText || el.textContent).replace(/\s+/g, " ").trim();
+    if (lineText) el.dataset.svsLine = lineText;
+
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (!node.textContent || !node.textContent.trim()) {

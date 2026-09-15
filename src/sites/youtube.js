@@ -5,7 +5,6 @@
 
 window.LagomLensSite = (() => {
   const CONTAINER_SELECTOR = ".ytp-caption-window-container";
-  const SEGMENT_SELECTOR = ".ytp-caption-segment";
 
   function findContainer() {
     return document.querySelector(CONTAINER_SELECTOR);
@@ -17,9 +16,7 @@ window.LagomLensSite = (() => {
     function watchContainer(container) {
       if (containerObserver) containerObserver.disconnect();
       containerObserver = new MutationObserver(() => {
-        container.querySelectorAll(SEGMENT_SELECTOR).forEach((seg) => {
-          onSubtitleNode(seg);
-        });
+        onSubtitleNode(container);
       });
       containerObserver.observe(container, {
         childList: true,
@@ -27,7 +24,7 @@ window.LagomLensSite = (() => {
         characterData: true,
       });
       // Process whatever's already there.
-      container.querySelectorAll(SEGMENT_SELECTOR).forEach(onSubtitleNode);
+      onSubtitleNode(container);
     }
 
     // The caption container itself appears/disappears with the player,
