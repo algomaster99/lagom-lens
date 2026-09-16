@@ -28,7 +28,13 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 
 > medborgarskapsprov -> citizenship test
 
-## Install (Chrome/Edge/Brave)
+## Install
+
+[<img src="https://cdn.simpleicons.org/firefoxbrowser" alt="" width="16" align="center" /> **Firefox Add-ons**](https://addons.mozilla.org/en-US/firefox/addon/lagom-lens/) · [<img src="https://cdn.simpleicons.org/googlechrome" alt="" width="16" align="center" /> **Chrome Web Store**](https://chromewebstore.google.com/detail/lagom-lens/cfoohmoihngoecbcgcgdiheeelgfopfe)
+
+Then open a YouTube video or an SVT Play video and turn on subtitles.
+
+## Install from source (Chrome/Edge/Brave)
 
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (top right)
@@ -36,7 +42,7 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 4. Select this folder (`lagom-lens`)
 5. Open a Swedish YouTube video or an SVT Play video, turn on subtitles
 
-## Install (Firefox)
+## Install from source (Firefox)
 
 1. Go to `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on…**
