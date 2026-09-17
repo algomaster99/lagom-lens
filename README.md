@@ -30,7 +30,8 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 
 ## Install
 
-[<img src="https://cdn.simpleicons.org/firefoxbrowser" alt="" width="16" align="center" /> **Firefox Add-ons**](https://addons.mozilla.org/en-US/firefox/addon/lagom-lens/) · [<img src="https://cdn.simpleicons.org/googlechrome" alt="" width="16" align="center" /> **Chrome Web Store**](https://chromewebstore.google.com/detail/lagom-lens/cfoohmoihngoecbcgcgdiheeelgfopfe)
+[![Firefox Add-ons](https://img.shields.io/amo/v/lagom-lens.svg?label=Firefox%20Add-ons&logo=firefoxbrowser&logoColor=white&color=FF7139)](https://addons.mozilla.org/en-US/firefox/addon/lagom-lens/)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/cfoohmoihngoecbcgcgdiheeelgfopfe.svg?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4)](https://chromewebstore.google.com/detail/lagom-lens/cfoohmoihngoecbcgcgdiheeelgfopfe)
 
 Then open a YouTube video or an SVT Play video and turn on subtitles.
 
