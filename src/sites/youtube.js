@@ -11,8 +11,25 @@ window.LagomLensSite = (() => {
     return document.querySelector(CONTAINER_SELECTOR);
   }
 
-  function observe(onSubtitleNode) {
+  function observe(lens) {
     let containerObserver = null;
+    let hideTimer = null;
+
+    const onSubtitleNode = (seg) => {
+      if (lens.isEnabled()) LagomLens.wrapWordsIn(seg);
+    };
+
+    document.body.addEventListener("mouseover", (e) => {
+      const el = e.target.closest(".svs-word");
+      if (!el) return;
+      clearTimeout(hideTimer);
+      lens.showWord(el.dataset.svsWord, el.getBoundingClientRect());
+    });
+
+    document.body.addEventListener("mouseout", (e) => {
+      if (!e.target.closest(".svs-word")) return;
+      hideTimer = setTimeout(lens.clearWord, 150);
+    });
 
     function watchContainer(container) {
       if (containerObserver) containerObserver.disconnect();
