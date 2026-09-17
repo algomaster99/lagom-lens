@@ -1,3 +1,8 @@
+/* TODO: these selectors depend on SVT's own data-rt attribute, which is the
+   one thing svtplay.js's fallback assumes has changed. If it ever does, the
+   adapter still resolves a container but these rules stop applying, so the
+   text can't be hovered. See the TODO in src/sites/svtplay.js. */
+
 /* The subtitles container needs a high z-index to appear above the video. */
 [data-rt="subtitles-container"] {
   z-index: 2147483647 !important;
