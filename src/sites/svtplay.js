@@ -22,24 +22,33 @@
 window.LagomLensSite = (() => {
   const CONTAINER_SELECTOR = '[data-rt="subtitles-container"]';
 
-  // Fallback heuristic kept in case SVT changes markup and drops data-rt.
-  const OVERLAY_HINTS = ["subtitle", "captions", "cue", "text-track"];
+  // Fallback for the case this path exists to survive: SVT renaming or
+  // dropping data-rt. Plain `video` as a second selector for the same reason.
+  //
+  // TODO: this only half works today. The JS survives a data-rt rename, but
+  // src/sites/svtplay.css is keyed to [data-rt="subtitles-container"], and
+  // those rules (z-index, pointer-events on the line spans) are what let the
+  // mouse reach the text at all -- so in the very scenario this fallback is
+  // for, we would resolve a container we cannot hover. The fix is to have
+  // this file mark whichever container it resolved and key the CSS off that
+  // instead:
+  //
+  //   el.dataset.svsSubtitles = "";   // data attribute, not a class: React
+  //                                   // manages className and would fight us
+  //   [data-svs-subtitles] span { pointer-events: auto !important; }
+  //
+  // Not done here because it moves the CSS behind our JS -- today it applies
+  // straight from SVT's own markup as the page paints -- and the whole path
+  // is unexercised until SVT actually changes something.
+  const VIDEO_SELECTOR = '[data-rt="video-player"], video';
 
   function findConfirmedContainer() {
     return document.querySelector(CONTAINER_SELECTOR);
   }
 
-  function looksLikeOverlay(el) {
-    if (!el || el.childElementCount > 20) return false;
-    const cls = (el.className || "").toString().toLowerCase();
-    return OVERLAY_HINTS.some((hint) => cls.includes(hint));
-  }
-
   function findFallbackContainer() {
-    const candidates = Array.from(document.querySelectorAll("div, span")).filter(
-      looksLikeOverlay
-    );
-    return candidates[0] || null;
+    const video = document.querySelector(VIDEO_SELECTOR);
+    return video?.parentElement || null;
   }
 
   // Anything that isn't whitespace or punctuation counts as part of a word.
@@ -108,10 +117,13 @@ window.LagomLensSite = (() => {
         return;
       }
 
+      // Most SVT pages -- start, categories, search -- have no player at all,
+      // so this finds nothing and costs one querySelector. Keep polling
+      // either way: the video modal mounts without a navigation.
       const fallback = findFallbackContainer();
       if (fallback) {
         container = fallback;
-        console.log("[Lagom Lens] watching SVT Play subtitles via fallback match", fallback.className);
+        console.log("[Lagom Lens] watching SVT Play subtitles via the video's parent");
         return;
       }
 
