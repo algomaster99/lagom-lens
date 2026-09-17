@@ -17,13 +17,13 @@
     {
       "matches": ["https://*.youtube.com/*"],
       "js": ["src/common.js", "src/sites/youtube.js", "src/content.js"],
-      "css": ["src/overlay.css"],
+      "css": ["src/overlay.css", "src/sites/youtube.css"],
       "run_at": "document_idle"
     },
     {
       "matches": ["https://*.svtplay.se/*"],
       "js": ["src/common.js", "src/sites/svtplay.js", "src/content.js"],
-      "css": ["src/overlay.css"],
+      "css": ["src/overlay.css", "src/sites/svtplay.css"],
       "run_at": "document_idle"
     }
   ],

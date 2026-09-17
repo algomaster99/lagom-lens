@@ -1,0 +1,7 @@
+/* YouTube: the adapter wraps each caption word in a .svs-word span, so the
+   words are real elements we can style and hover directly. */
+
+.svs-word {
+  cursor: help;
+  pointer-events: auto;
+}

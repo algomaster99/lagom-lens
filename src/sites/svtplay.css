@@ -1,0 +1,12 @@
+/* The subtitles container needs a high z-index to appear above the video. */
+[data-rt="subtitles-container"] {
+  z-index: 2147483647 !important;
+}
+
+/* Only the line spans take the mouse, and so only they show the cursor hint.
+   The container is the size of the video, so doing either on *it* would
+   swallow every click-to-pause and turn the whole player into a help cursor. */
+[data-rt="subtitles-container"] span {
+  pointer-events: auto !important;
+  cursor: help;
+}

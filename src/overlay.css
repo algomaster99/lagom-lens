@@ -1,19 +1,14 @@
-.svs-word {
-  cursor: help;
+/* Overlay styles for the Lagom Lens extension.
+We draw the overlay span on top of the subtitles. */
+.svs-highlight {
+  position: fixed;
+  z-index: 2147483646;
+  pointer-events: none;
   border-radius: 3px;
-  transition: background-color 0.1s ease;
-  pointer-events: auto;
-}
-
-[data-rt="subtitles-container"] {
-  position: relative !important;
-  z-index: 2147483647 !important;
-}
-
-.svs-word:hover {
   background-color: rgba(255, 220, 60, 0.35);
 }
 
+/* Tooltip styles for the Lagom Lens extension. */
 .svs-tooltip {
   position: fixed;
   transform: translate(-50%, -100%);
@@ -53,29 +48,4 @@
 .svs-tooltip-error {
   color: #ff9d9d;
   font-size: 12px;
-}
-
-/* Overlay used for SVT Play when we render native <track> cues ourselves */
-.svs-native-overlay {
-  position: absolute;
-  bottom: 8%;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: none;
-  z-index: 60;
-}
-
-.svs-native-line {
-  pointer-events: auto;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 20px;
-  margin-top: 2px;
-  max-width: 80%;
-  text-align: center;
 }
