@@ -25,6 +25,50 @@ input[type="password"] {
   max-width: 140px;
 }
 
+.lang-swap-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lang-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+}
+
+.lang-field select {
+  max-width: none;
+  width: 100%;
+}
+
+.swap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  background: #fff;
+  color: #444;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.swap-btn:hover {
+  background: #f0f0f0;
+}
+
+.swap-btn:active {
+  transform: scale(0.92);
+}
+
 .hint {
   font-size: 11px;
   color: #666;
