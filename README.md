@@ -17,7 +17,7 @@ https://mymemory.translated.net/ for translations.
 I was tired of having to pause videos, type words into my translator, and then resume the video.
 Lagom Lens lets you hover over a word and see the translation instantly.
 
-## Examples
+## Screenshots
 
 #### SVT Play
 
@@ -30,6 +30,10 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 ![YouTube example](examples/youtube.png)
 
 > medborgarskapsprov -> citizenship test
+
+#### Language Menu
+
+![Language Menu example](examples/extensionUI.png)
 
 
 ## Install from source (Chrome/Edge/Brave)
