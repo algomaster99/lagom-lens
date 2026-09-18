@@ -36,6 +36,25 @@ const LagomLens = (() => {
     return `${source}:${target}:${word.toLowerCase()}`;
   }
 
+  function sendTranslateRequest(word, settings, timeoutMs) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error("timed out waiting for background script")),
+        timeoutMs
+      );
+      browserAPI.runtime
+        .sendMessage({ type: "svs-translate", word, settings })
+        .then((res) => {
+          clearTimeout(timer);
+          resolve(res);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
+  }
+
   async function translateWord(word) {
     const settings = await getSettings();
     const key = cacheKey(word, settings.sourceLang, settings.targetLang);
@@ -47,13 +66,13 @@ const LagomLens = (() => {
     // requests to the translation APIs on sites with a strict connect-src.
     let result;
     try {
-      result = await browserAPI.runtime.sendMessage({
-        type: "svs-translate",
-        word,
-        settings,
-      });
-    } catch (err) {
-      result = { text: null, error: err.message || "lookup failed" };
+      result = await sendTranslateRequest(word, settings, 2000);
+    } catch (firstErr) {
+      try {
+        result = await sendTranslateRequest(word, settings, 4000);
+      } catch (err) {
+        result = { text: null, error: err.message || "lookup failed" };
+      }
     }
 
     memCache.set(key, result);
