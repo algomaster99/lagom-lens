@@ -21,19 +21,19 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 
 #### SVT Play
 
-![SVT Play example](examples/svtplay.png)
+![SVT Play example](screenshots/svtplay.png)
 
 > rösträkningen -> the vote count
 
 #### YouTube
 
-![YouTube example](examples/youtube.png)
+![YouTube example](screenshots/youtube.png)
 
 > medborgarskapsprov -> citizenship test
 
 #### Language Menu
 
-![Language Menu example](examples/extensionUI.png)
+![Language Menu example](screenshots/extensionUI.png)
 
 
 ## Install from source (Chrome/Edge/Brave)
