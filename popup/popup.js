@@ -9,6 +9,7 @@ const DEFAULTS = {
 const enabledEl = document.getElementById("enabled");
 const sourceLangEl = document.getElementById("sourceLang");
 const targetLangEl = document.getElementById("targetLang");
+const swapLangsEl = document.getElementById("swapLangs");
 const statusEl = document.getElementById("status");
 
 function showSaved() {
@@ -63,12 +64,24 @@ function onTargetLangChange() {
   save();
 }
 
+function onSwapLangs() {
+  const source = sourceLangEl.value;
+  const target = targetLangEl.value;
+  sourceLangEl.value = target;
+  targetLangEl.value = source;
+  prevSourceLang = sourceLangEl.value;
+  prevTargetLang = targetLangEl.value;
+  syncLangOptions();
+  save();
+}
+
 let prevSourceLang = sourceLangEl.value;
 let prevTargetLang = targetLangEl.value;
 
 enabledEl.addEventListener("change", save);
 sourceLangEl.addEventListener("change", onSourceLangChange);
 targetLangEl.addEventListener("change", onTargetLangChange);
+swapLangsEl.addEventListener("click", onSwapLangs);
 
 load().then(() => {
   prevSourceLang = sourceLangEl.value;
