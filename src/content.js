@@ -21,7 +21,7 @@
     tooltip = document.createElement("div");
     tooltip.className = "svs-tooltip";
     tooltip.style.display = "none";
-    document.body.appendChild(tooltip);
+    (document.fullscreenElement || document.body).appendChild(tooltip);
     return tooltip;
   }
 
@@ -101,7 +101,14 @@
 
   const lens = { showWord, clearWord, isEnabled: () => enabled };
 
-  // -----------------------------------------------------------------------
+
+  function relocateOverlays() {
+    const home = document.fullscreenElement || document.body;
+    if (tooltip && tooltip.parentElement !== home) home.appendChild(tooltip);
+    if (highlight.parentElement !== home) home.appendChild(highlight);
+  }
+
+  document.addEventListener("fullscreenchange", relocateOverlays);
 
   async function init() {
     const settings = await LagomLens.getSettings();
