@@ -1,18 +1,26 @@
-// Confirmed from a live SVT Play page (svtplay.se, TTML-based player):
+// Confirmed from live SVT Play pages (svtplay.se, TTML-based player):
 //
 //   <div data-rt="subtitles-container" class="css-17nsyyn">
-//     <div class="video-player__text-tracks" ...>
-//       <div id="cue_TTML_###">
-//         ... deeply nested wrapper divs ...
-//         <p><span><span>line one text</span></span><br>
-//            <span><span>line two text</span></span></p>
+//     <div class="video-player__text-tracks" ...></div>
+//     <div class="css-qwoqrz">
+//       <div class="css-xkje1x">
+//         <div class="css-1okjmlg">
+//           <span>line one text</span>
+//           <span>line two text</span>
+//         </div>
 //       </div>
 //     </div>
 //   </div>
 //
-// So SVT renders subtitles as custom DOM (TTML cues turned into nested
-// spans), NOT as native <track> cues -- no need to intercept cuechange or
-// draw our own overlay. We just need the right container.
+// This DOM shape isn't stable -- an older version had a <p><span><span>
+// cue wrapped in an id="cue_TTML_###" div, this one doesn't, and wrapper
+// classes are build-hashed either way. So we never anchor to "the cue
+// element" -- for shift-hover we just read whatever text is in the
+// container (see readSubtitle below).
+//
+// So SVT renders subtitles as custom DOM (TTML cues turned into spans), NOT
+// as native <track> cues -- no need to intercept cuechange or draw our own
+// overlay. We just need the right container.
 //
 // That DOM is rendered by React, though, which keeps references to the text
 // nodes it created. Splitting them into word spans (our YouTube strategy)
@@ -92,27 +100,116 @@ window.LagomLensSite = (() => {
     return { word: text.slice(start, end), rect };
   }
 
+  // Text nodes only, not e.g. container.innerText: the container also holds
+  // .video-player__text-tracks, an empty div CSS sizes to the whole video --
+  // walking to text avoids picking up its box (see readSubtitle below).
+  function collectTextNodes(el) {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return node.textContent?.trim()
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      },
+    });
+    const nodes = [];
+    let node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    return nodes;
+  }
+
+  // Shift-hover translates the whole subtitle, not just one word
+  // (github.com/algomaster99/lagom-lens/issues/1). Returns joined text and
+  // the union rect of every text node under `el`, or null if there's none.
+  function readSubtitle(el) {
+    const nodes = collectTextNodes(el);
+    if (!nodes.length) return null;
+
+    const range = document.createRange();
+    const rect = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+    const parts = [];
+    for (const node of nodes) {
+      parts.push(node.textContent.trim());
+      range.selectNodeContents(node);
+      const r = range.getBoundingClientRect();
+      rect.left = Math.min(rect.left, r.left);
+      rect.top = Math.min(rect.top, r.top);
+      rect.right = Math.max(rect.right, r.right);
+      rect.bottom = Math.max(rect.bottom, r.bottom);
+    }
+
+    const text = parts.join(" ").replace(/\s+/g, " ").trim();
+    if (!text) return null;
+    rect.width = rect.right - rect.left;
+    rect.height = rect.bottom - rect.top;
+    return { text, rect };
+  }
+
   function observe(lens) {
     let attempts = 0;
     let container = null;
     const maxAttempts = 20; // ~20s -- player mounts async on SPA nav
 
-    document.addEventListener("mousemove", (e) => {
-      if (!lens.isEnabled() || !container?.isConnected) return;
-      // Cheap reject first: caret hit-testing every mousemove is wasteful.
-      if (!container.contains(e.target)) return lens.clearWord();
+    let pointer = null; // last { x, y, target }
+    let shiftHeld = false;
 
-      const hit = wordAt(e.clientX, e.clientY, container);
+    function update() {
+      if (!lens.isEnabled() || !container?.isConnected || !pointer) return;
+      if (!container.contains(pointer.target)) return lens.clearWord();
+
+      if (shiftHeld) {
+        const subtitle = readSubtitle(container);
+        if (subtitle) lens.showWord(subtitle.text, subtitle.rect);
+        else lens.clearWord();
+        return;
+      }
+
+      const hit = wordAt(pointer.x, pointer.y, container);
       if (hit) lens.showWord(hit.word, hit.rect);
       else lens.clearWord();
+    }
+
+    document.addEventListener("mousemove", (e) => {
+      if (!lens.isEnabled() || !container?.isConnected) return;
+      pointer = { x: e.clientX, y: e.clientY, target: e.target };
+      update();
     });
+
+    // Shift toggles word-level vs. whole-subtitle translation.
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Shift" || shiftHeld) return;
+      shiftHeld = true;
+      update();
+    });
+    document.addEventListener("keyup", (e) => {
+      if (e.key !== "Shift") return;
+      shiftHeld = false;
+      update();
+    });
+    // Keyup can be missed (e.g. alt-tab while holding Shift).
+    window.addEventListener("blur", () => {
+      shiftHeld = false;
+    });
+
+    // Refresh on DOM changes too, not just mouse/key events -- subtitles
+    // swap while the mouse sits still.
+    let contentObserver = null;
+    function attachContainer(el) {
+      container = el;
+      contentObserver?.disconnect();
+      contentObserver = new MutationObserver(update);
+      contentObserver.observe(container, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    }
 
     const tryAttach = () => {
       attempts++;
 
       const confirmed = findConfirmedContainer();
       if (confirmed) {
-        container = confirmed;
+        attachContainer(confirmed);
         console.log("[Lagom Lens] watching SVT Play subtitles via", CONTAINER_SELECTOR);
         return;
       }
@@ -122,7 +219,7 @@ window.LagomLensSite = (() => {
       // either way: the video modal mounts without a navigation.
       const fallback = findFallbackContainer();
       if (fallback) {
-        container = fallback;
+        attachContainer(fallback);
         console.log("[Lagom Lens] watching SVT Play subtitles via the video's parent");
         return;
       }
@@ -150,6 +247,8 @@ window.LagomLensSite = (() => {
       if (!navigated && container?.isConnected !== false) return;
       lastPath = location.pathname;
       container = null;
+      contentObserver?.disconnect();
+      contentObserver = null;
       lens.clearWord();
       attempts = 0;
       setTimeout(tryAttach, navigated ? 1500 : 0);
