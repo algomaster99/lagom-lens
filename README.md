@@ -21,6 +21,8 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 
 ## Screenshots
 
+![Full subtitle example](screenshots/fullSubtitle.png)
+
 #### SVT Play
 
 ![SVT Play example](screenshots/svtplay.png)
