@@ -11,18 +11,78 @@ window.LagomLensSite = (() => {
     return document.querySelector(CONTAINER_SELECTOR);
   }
 
+  // Text nodes only, not container.textContent -- keeps the union rect
+  // below tight around the glyphs instead of the caption window's box.
+  function collectTextNodes(el) {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return node.textContent?.trim()
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      },
+    });
+    const nodes = [];
+    let node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    return nodes;
+  }
+
+  // Shift-hover translates the whole subtitle, not just one word
+  // (github.com/algomaster99/lagom-lens/issues/1). Returns joined text and
+  // the union rect of every text node under `el`, or null if there's none.
+  function readSubtitle(el) {
+    const nodes = collectTextNodes(el);
+    if (!nodes.length) return null;
+
+    const range = document.createRange();
+    const rect = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+    const parts = [];
+    for (const node of nodes) {
+      parts.push(node.textContent.trim());
+      range.selectNodeContents(node);
+      const r = range.getBoundingClientRect();
+      rect.left = Math.min(rect.left, r.left);
+      rect.top = Math.min(rect.top, r.top);
+      rect.right = Math.max(rect.right, r.right);
+      rect.bottom = Math.max(rect.bottom, r.bottom);
+    }
+
+    const text = parts.join(" ").replace(/\s+/g, " ").trim();
+    if (!text) return null;
+    rect.width = rect.right - rect.left;
+    rect.height = rect.bottom - rect.top;
+    return { text, rect };
+  }
+
   function observe(lens) {
     let containerObserver = null;
     let hideTimer = null;
+    let container = null;
+    let shiftHeld = false;
+    let pointerTarget = null; // last mousemove target, for shift toggling
 
     const onSubtitleNode = (seg) => {
       if (lens.isEnabled()) LagomLens.wrapWordsIn(seg);
     };
 
+    function showWholeSubtitle() {
+      if (!container?.isConnected) return lens.clearWord();
+      const subtitle = readSubtitle(container);
+      if (subtitle) lens.showWord(subtitle.text, subtitle.rect);
+      else lens.clearWord();
+    }
+
+    // Cheap: just remembers where the pointer last was, so Shift toggling
+    // (a keyboard event) knows whether it's currently over a caption.
+    document.addEventListener("mousemove", (e) => {
+      pointerTarget = e.target;
+    });
+
     document.body.addEventListener("mouseover", (e) => {
       const el = e.target.closest(".svs-word");
       if (!el) return;
       clearTimeout(hideTimer);
+      if (shiftHeld) return showWholeSubtitle();
       lens.showWord(el.dataset.svsWord, el.getBoundingClientRect());
     });
 
@@ -31,12 +91,37 @@ window.LagomLensSite = (() => {
       hideTimer = setTimeout(lens.clearWord, 150);
     });
 
-    function watchContainer(container) {
+    // Shift toggles word-level vs. whole-subtitle translation.
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Shift" || shiftHeld) return;
+      shiftHeld = true;
+      if (container?.contains(pointerTarget)) {
+        clearTimeout(hideTimer);
+        showWholeSubtitle();
+      }
+    });
+    document.addEventListener("keyup", (e) => {
+      if (e.key !== "Shift") return;
+      shiftHeld = false;
+      const wordEl = pointerTarget?.closest?.(".svs-word");
+      if (wordEl) lens.showWord(wordEl.dataset.svsWord, wordEl.getBoundingClientRect());
+      else lens.clearWord();
+    });
+    // Keyup can be missed (e.g. alt-tab while holding Shift).
+    window.addEventListener("blur", () => {
+      shiftHeld = false;
+    });
+
+    function watchContainer(el) {
+      container = el;
       if (containerObserver) containerObserver.disconnect();
       containerObserver = new MutationObserver(() => {
         container.querySelectorAll(SEGMENT_SELECTOR).forEach((seg) => {
           onSubtitleNode(seg);
         });
+        // Subtitles swap while the mouse sits still -- keep the
+        // shift-held translation in sync with whatever's shown now.
+        if (shiftHeld) showWholeSubtitle();
       });
       containerObserver.observe(container, {
         childList: true,
@@ -50,10 +135,10 @@ window.LagomLensSite = (() => {
     // The caption container itself appears/disappears with the player,
     // so watch the player area for it showing up.
     const rootObserver = new MutationObserver(() => {
-      const container = findContainer();
-      if (container && !container.dataset.svsWatched) {
-        container.dataset.svsWatched = "1";
-        watchContainer(container);
+      const found = findContainer();
+      if (found && !found.dataset.svsWatched) {
+        found.dataset.svsWatched = "1";
+        watchContainer(found);
       }
     });
     rootObserver.observe(document.body, { childList: true, subtree: true });
