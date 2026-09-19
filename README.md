@@ -8,6 +8,8 @@
 Lagom Lens is a minimal browser extension which helps you to learn a new language.
 Hover a word in subtitles (YouTube or SVT Play) to see a translation in your chosen language.
 
+> [!TIP]
+> **Hold <kbd>Shift</kbd> while hovering** to translate the whole subtitle line instead of just one word.
 
 It works by manipulating the DOM elements of the page and then querying
 https://mymemory.translated.net/ for translations.
@@ -56,11 +58,14 @@ Note: a temporary add-on is removed when Firefox restarts — reload it from
 
 ## FAQ
 
-1. I was hovering and the video moved so the subtitles changed.
+1. How do I translate a whole sentence instead of one word?
+    - Hold `Shift` while hovering over the subtitle.
+
+2. I was hovering and the video moved so the subtitles changed.
     - I recommend pausing the video while you hover.
       I also assume that if you are learning Swedish, you probably don't watch the video at full speed anyway so you shouldn't have this problem too often.
 
-2. Why Lagom Lens?
+3. Why Lagom Lens?
     - "Lagom" is a Swedish word that roughly translates to "just right" or
       "moderate".
       Lens is inspired from Google Lens and isn't too complex like computer vision and not too simple like a dictionary lookup.
