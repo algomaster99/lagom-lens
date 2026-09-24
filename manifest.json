@@ -27,6 +27,12 @@
       "run_at": "document_idle"
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/sites/youtube-page-bridge.js"],
+      "matches": ["https://*.youtube.com/*"]
+    }
+  ],
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Lagom Lens"
