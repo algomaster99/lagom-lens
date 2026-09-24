@@ -65,6 +65,12 @@ const LagomLens = (() => {
     detectionBuffer = "";
   }
 
+  // For sites that are always one language (e.g. SVT Play is always
+  // Swedish) -- skip sampling text entirely and just declare it.
+  function forceDetectedLang(lang) {
+    detectedLang = lang;
+  }
+
   function resolveSourceLang(sourceLangSetting) {
     return sourceLangSetting === "auto" ? detectedLang : sourceLangSetting;
   }
@@ -197,5 +203,6 @@ const LagomLens = (() => {
     wrapWordsIn,
     noteSubtitleText,
     resetDetection,
+    forceDetectedLang,
   };
 })();
