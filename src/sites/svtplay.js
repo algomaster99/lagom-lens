@@ -196,7 +196,14 @@ window.LagomLensSite = (() => {
     function attachContainer(el) {
       container = el;
       contentObserver?.disconnect();
-      contentObserver = new MutationObserver(update);
+      // SVT doesn't expose a transcript API we can reach up front (see the
+      // file header), so unlike the YouTube adapter this can only detect
+      // the language reactively, from whatever cues actually get rendered.
+      LagomLens.noteSubtitleText(container.textContent);
+      contentObserver = new MutationObserver(() => {
+        LagomLens.noteSubtitleText(container.textContent);
+        update();
+      });
       contentObserver.observe(container, {
         childList: true,
         subtree: true,
@@ -250,6 +257,7 @@ window.LagomLensSite = (() => {
       contentObserver?.disconnect();
       contentObserver = null;
       lens.clearWord();
+      LagomLens.resetDetection();
       attempts = 0;
       setTimeout(tryAttach, navigated ? 1500 : 0);
     }).observe(document.body, { childList: true, subtree: true });

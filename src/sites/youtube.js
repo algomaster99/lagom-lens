@@ -11,6 +11,52 @@ window.LagomLensSite = (() => {
     return document.querySelector(CONTAINER_SELECTOR);
   }
 
+  function getVideoId() {
+    return new URLSearchParams(location.search).get("v");
+  }
+
+  function parseTrackLangs(listXml) {
+    const langs = [];
+    const re = /<track\b[^>]*\blang_code="([^"]+)"/g;
+    let m;
+    while ((m = re.exec(listXml))) langs.push(m[1]);
+    return langs;
+  }
+
+  function stripTimedTextMarkup(xml) {
+    return xml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Grab a big chunk of this video's subtitle text up front -- via
+  // YouTube's own timedtext endpoints, same-origin so no host permission is
+  // needed beyond what we already have -- so language detection has enough
+  // to go on before the player (and any caption DOM) has even rendered
+  // (github.com/algomaster99/lagom-lens/issues/18).
+  async function prefetchTranscript(videoId) {
+    try {
+      const listRes = await fetch(
+        `https://www.youtube.com/api/timedtext?type=list&v=${encodeURIComponent(videoId)}`
+      );
+      if (!listRes.ok) return;
+      const [lang] = parseTrackLangs(await listRes.text());
+      if (!lang) return;
+
+      const trackRes = await fetch(
+        `https://www.youtube.com/api/timedtext?lang=${encodeURIComponent(lang)}&v=${encodeURIComponent(videoId)}`
+      );
+      if (!trackRes.ok) return;
+      LagomLens.noteSubtitleText(stripTimedTextMarkup(await trackRes.text()));
+    } catch (err) {
+      console.warn("[Lagom Lens] transcript prefetch failed", err);
+    }
+  }
+
   // Text nodes only, not container.textContent -- keeps the union rect
   // below tight around the glyphs instead of the caption window's box.
   function collectTextNodes(el) {
@@ -62,8 +108,23 @@ window.LagomLensSite = (() => {
     let pointerTarget = null; // last mousemove target, for shift toggling
 
     const onSubtitleNode = (seg) => {
+      LagomLens.noteSubtitleText(seg.textContent);
       if (lens.isEnabled()) LagomLens.wrapWordsIn(seg);
     };
+
+    // Fallback/reinforcement for prefetchTranscript above: if the transcript
+    // endpoints don't have this video (no captions, or YouTube changes the
+    // API), we still detect from whatever captions actually get shown.
+    let lastVideoId = null;
+    function checkVideoChange() {
+      const id = getVideoId();
+      if (!id || id === lastVideoId) return;
+      lastVideoId = id;
+      LagomLens.resetDetection();
+      prefetchTranscript(id);
+    }
+    checkVideoChange();
+    setInterval(checkVideoChange, 2000);
 
     function showWholeSubtitle() {
       if (!container?.isConnected) return lens.clearWord();

@@ -11,6 +11,11 @@ Hover a word in subtitles (YouTube or SVT Play) to see a translation in your cho
 > [!TIP]
 > **Hold <kbd>Shift</kbd> while hovering** to translate the whole subtitle line instead of just one word.
 
+By default, the source language is detected automatically: on YouTube it's guessed from the
+video's transcript before you even hit play, and on both sites it keeps refining from the
+subtitles as they appear, so you don't have to set it by hand. Pick a fixed language from the
+"From" dropdown instead if you'd rather turn detection off for a video.
+
 It works by manipulating the DOM elements of the page and then querying
 https://mymemory.translated.net/ for translations.
 
