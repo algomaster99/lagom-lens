@@ -69,6 +69,11 @@ input[type="password"] {
   transform: scale(0.92);
 }
 
+.swap-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .hint {
   font-size: 11px;
   color: #666;

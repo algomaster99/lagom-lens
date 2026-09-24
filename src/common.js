@@ -6,7 +6,7 @@ const LagomLens = (() => {
 
   const DEFAULT_SETTINGS = {
     enabled: true,
-    sourceLang: "sv",
+    sourceLang: "auto",
     targetLang: "en",
   };
 
@@ -36,6 +36,45 @@ const LagomLens = (() => {
     return `${source}:${target}:${word.toLowerCase()}`;
   }
 
+  // "auto" source language: guess it from subtitle text instead of asking
+  // MyMemory's own "detect" langpair, which doesn't give reliable results
+  // (github.com/algomaster99/lagom-lens/issues/18). Site adapters feed us
+  // subtitle text as it becomes available -- often before the user has
+  // hovered anything -- via noteSubtitleText(); once LagomLensLangDetect is
+  // confident, the guess is locked in for the rest of the video.
+  let detectedLang = null;
+  let detectionBuffer = "";
+
+  function noteSubtitleText(text) {
+    if (!text || detectedLang) return;
+    detectionBuffer += " " + text;
+    if (typeof LagomLensLangDetect === "undefined") return;
+    const guess = LagomLensLangDetect.detect(detectionBuffer);
+    if (guess) detectedLang = guess;
+    else if (detectionBuffer.length > 4000) {
+      // Keep only the tail so the buffer doesn't grow unbounded on a long
+      // video that never yields a confident guess.
+      detectionBuffer = detectionBuffer.slice(-2000);
+    }
+  }
+
+  // Site adapters call this when the video changes (new watch page, SPA
+  // navigation) so a stale guess from the previous video isn't reused.
+  function resetDetection() {
+    detectedLang = null;
+    detectionBuffer = "";
+  }
+
+  // For sites that are always one language (e.g. SVT Play is always
+  // Swedish) -- skip sampling text entirely and just declare it.
+  function forceDetectedLang(lang) {
+    detectedLang = lang;
+  }
+
+  function resolveSourceLang(sourceLangSetting) {
+    return sourceLangSetting === "auto" ? detectedLang : sourceLangSetting;
+  }
+
   function sendTranslateRequest(word, settings, timeoutMs) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(
@@ -57,19 +96,26 @@ const LagomLens = (() => {
 
   async function translateWord(word) {
     const settings = await getSettings();
-    const key = cacheKey(word, settings.sourceLang, settings.targetLang);
+    const sourceLang = resolveSourceLang(settings.sourceLang);
+    if (!sourceLang) {
+      // "auto" and we haven't seen enough subtitle text yet to guess.
+      return { text: null, pending: true, error: "detecting language…" };
+    }
 
+    const key = cacheKey(word, sourceLang, settings.targetLang);
     if (memCache.has(key)) return memCache.get(key);
+
+    const effectiveSettings = { ...settings, sourceLang };
 
     // The actual fetch runs in the background script — a content script's
     // fetch() is subject to the host page's CSP in Firefox, which blocks
     // requests to the translation APIs on sites with a strict connect-src.
     let result;
     try {
-      result = await sendTranslateRequest(word, settings, 2000);
+      result = await sendTranslateRequest(word, effectiveSettings, 2000);
     } catch (firstErr) {
       try {
-        result = await sendTranslateRequest(word, settings, 4000);
+        result = await sendTranslateRequest(word, effectiveSettings, 4000);
       } catch (err) {
         result = { text: null, error: err.message || "lookup failed" };
       }
@@ -155,5 +201,8 @@ const LagomLens = (() => {
     getSettings,
     translateWord,
     wrapWordsIn,
+    noteSubtitleText,
+    resetDetection,
+    forceDetectedLang,
   };
 })();

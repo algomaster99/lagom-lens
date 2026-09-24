@@ -41,6 +41,14 @@
   function showResult(rect, word, result) {
     const t = ensureTooltip();
     positionTooltip(rect);
+    if (result.pending) {
+      // Still gathering subtitle text to guess the source language --
+      // this isn't an error, just keep the loading state up.
+      t.classList.remove("svs-tooltip-error");
+      t.textContent = "…";
+      t.style.display = "block";
+      return;
+    }
     if (result.error || !result.text) {
       t.textContent = `⚠ ${result.error || "no translation"}`;
       t.classList.add("svs-tooltip-error");

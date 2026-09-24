@@ -4,11 +4,77 @@
 // re-process whatever segment nodes show up.
 
 window.LagomLensSite = (() => {
+  const browserAPI = typeof browser !== "undefined" ? browser : chrome;
+
   const CONTAINER_SELECTOR = ".ytp-caption-window-container";
   const SEGMENT_SELECTOR = ".ytp-caption-segment";
 
   function findContainer() {
     return document.querySelector(CONTAINER_SELECTOR);
+  }
+
+  function getVideoId() {
+    return new URLSearchParams(location.search).get("v");
+  }
+
+  function stripTimedTextMarkup(xml) {
+    return xml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Caption track URLs are signed by YouTube (pot/signature params baked in
+  // by the page's own player) -- a content script can't construct a valid
+  // one itself, so we ask the page for the exact URL it would use. See
+  // youtube-page-bridge.js, injected into the page's JS context below.
+  let bridgeInjected = false;
+  function ensureBridge() {
+    if (bridgeInjected) return;
+    bridgeInjected = true;
+    const script = document.createElement("script");
+    script.src = browserAPI.runtime.getURL("src/sites/youtube-page-bridge.js");
+    script.addEventListener("load", () => script.remove());
+    (document.head || document.documentElement).appendChild(script);
+  }
+
+  function requestCaptionTracks(timeoutMs = 1500) {
+    ensureBridge();
+    return new Promise((resolve) => {
+      let settled = false;
+      const onTracks = (e) => {
+        if (settled) return;
+        settled = true;
+        window.removeEventListener("svs-caption-tracks", onTracks);
+        resolve(e.detail || []);
+      };
+      window.addEventListener("svs-caption-tracks", onTracks);
+      window.dispatchEvent(new CustomEvent("svs-request-caption-tracks"));
+      setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        window.removeEventListener("svs-caption-tracks", onTracks);
+        resolve([]);
+      }, timeoutMs);
+    });
+  }
+
+  // Grab a big chunk of this video's subtitle text up front, so language
+  // detection has enough to go on before the player (and any caption DOM)
+  // has even rendered (github.com/algomaster99/lagom-lens/issues/18).
+  async function prefetchTranscript() {
+    try {
+      const [track] = await requestCaptionTracks();
+      if (!track?.baseUrl) return;
+      const res = await fetch(track.baseUrl);
+      if (!res.ok) return;
+      LagomLens.noteSubtitleText(stripTimedTextMarkup(await res.text()));
+    } catch (err) {
+      console.warn("[Lagom Lens] transcript prefetch failed", err);
+    }
   }
 
   // Text nodes only, not container.textContent -- keeps the union rect
@@ -62,8 +128,27 @@ window.LagomLensSite = (() => {
     let pointerTarget = null; // last mousemove target, for shift toggling
 
     const onSubtitleNode = (seg) => {
+      LagomLens.noteSubtitleText(seg.textContent);
       if (lens.isEnabled()) LagomLens.wrapWordsIn(seg);
     };
+
+    // Fallback/reinforcement for prefetchTranscript above: if the page
+    // doesn't have a reachable transcript for this video (no captions, or
+    // YouTube changes something), we still detect from whatever captions
+    // actually get shown.
+    let lastVideoId = null;
+    function checkVideoChange() {
+      const id = getVideoId();
+      if (!id || id === lastVideoId) return;
+      lastVideoId = id;
+      LagomLens.resetDetection();
+      // A beat for the player to actually load the new video -- right after
+      // the URL changes on an SPA nav, getPlayerResponse() can still report
+      // the previous one.
+      setTimeout(prefetchTranscript, 300);
+    }
+    checkVideoChange();
+    setInterval(checkVideoChange, 2000);
 
     function showWholeSubtitle() {
       if (!container?.isConnected) return lens.clearWord();

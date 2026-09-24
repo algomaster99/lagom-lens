@@ -145,6 +145,9 @@ window.LagomLensSite = (() => {
   }
 
   function observe(lens) {
+    // SVT Play only serves Swedish content, so there's nothing to detect.
+    LagomLens.forceDetectedLang("sv");
+
     let attempts = 0;
     let container = null;
     const maxAttempts = 20; // ~20s -- player mounts async on SPA nav

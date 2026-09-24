@@ -2,7 +2,7 @@ const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
 const DEFAULTS = {
   enabled: true,
-  sourceLang: "sv",
+  sourceLang: "auto",
   targetLang: "en",
 };
 
@@ -24,6 +24,8 @@ function syncLangOptions() {
   for (const option of targetLangEl.options) {
     option.disabled = option.value === sourceLangEl.value;
   }
+  // Nothing concrete to swap into "From" when it's auto-detecting.
+  swapLangsEl.disabled = sourceLangEl.value === "auto";
 }
 
 async function load() {
@@ -65,6 +67,7 @@ function onTargetLangChange() {
 }
 
 function onSwapLangs() {
+  if (sourceLangEl.value === "auto") return; // nothing concrete to swap
   const source = sourceLangEl.value;
   const target = targetLangEl.value;
   sourceLangEl.value = target;
