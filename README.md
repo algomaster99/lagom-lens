@@ -58,6 +58,31 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 Note: a temporary add-on is removed when Firefox restarts — reload it from
 `about:debugging` again next session.
 
+## Releasing
+
+Publishing to the Chrome Web Store and Firefox Add-ons is automated by
+[`.github/workflows/release.yml`](.github/workflows/release.yml).
+
+1. Bump `version` in `manifest.json` and commit it.
+2. Tag the commit with the same version and push the tag:
+   ```sh
+   git tag v0.3.2 && git push origin v0.3.2
+   ```
+3. The workflow lints and packages the extension, uploads + publishes it to the
+   Chrome Web Store, submits it to AMO for review, and creates a GitHub release
+   with the zip attached. The tag must match the manifest version or the run fails.
+
+You can also run the workflow manually from the Actions tab and pick which stores to publish to.
+To build the zip locally, run `./scripts/package.sh` (output goes to `dist/`).
+
+Required repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Where to get it |
+| --- | --- |
+| `CHROME_CLIENT_ID`, `CHROME_CLIENT_SECRET`, `CHROME_REFRESH_TOKEN` | Google Cloud OAuth client with the Chrome Web Store API enabled — see [this guide](https://github.com/fregante/chrome-webstore-upload-keys) |
+| `CHROME_PUBLISHER_ID` | Chrome Web Store developer dashboard → Account |
+| `AMO_JWT_ISSUER`, `AMO_JWT_SECRET` | [addons.mozilla.org API keys](https://addons.mozilla.org/en-US/developers/addon/api/key/) |
+
 ## FAQ
 
 1. How do I translate a whole sentence instead of one word?
