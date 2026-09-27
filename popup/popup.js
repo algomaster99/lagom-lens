@@ -2,7 +2,7 @@ const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
 const DEFAULTS = {
   enabled: true,
-  pauseOnHover: false,
+  pauseOnHover: true,
   sourceLang: "sv",
   targetLang: "en",
 };

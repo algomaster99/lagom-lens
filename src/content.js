@@ -14,7 +14,7 @@
 
   let tooltip = null;
   let enabled = true;
-  let pauseOnHover = false;
+  let pauseOnHover = true;
   let shownWord = null;
   // The video we paused on hover, so we only resume what we paused ourselves.
   let pausedVideo = null;
