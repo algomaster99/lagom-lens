@@ -2,11 +2,13 @@ const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
 const DEFAULTS = {
   enabled: true,
+  pauseOnHover: false,
   sourceLang: "sv",
   targetLang: "en",
 };
 
 const enabledEl = document.getElementById("enabled");
+const pauseOnHoverEl = document.getElementById("pauseOnHover");
 const sourceLangEl = document.getElementById("sourceLang");
 const targetLangEl = document.getElementById("targetLang");
 const swapLangsEl = document.getElementById("swapLangs");
@@ -29,6 +31,7 @@ function syncLangOptions() {
 async function load() {
   const settings = await browserAPI.storage.sync.get(DEFAULTS);
   enabledEl.checked = settings.enabled;
+  pauseOnHoverEl.checked = settings.pauseOnHover;
   sourceLangEl.value = settings.sourceLang;
   targetLangEl.value = settings.targetLang;
   syncLangOptions();
@@ -38,6 +41,7 @@ function save() {
   browserAPI.storage.sync
     .set({
       enabled: enabledEl.checked,
+      pauseOnHover: pauseOnHoverEl.checked,
       sourceLang: sourceLangEl.value,
       targetLang: targetLangEl.value,
     })
@@ -79,6 +83,7 @@ let prevSourceLang = sourceLangEl.value;
 let prevTargetLang = targetLangEl.value;
 
 enabledEl.addEventListener("change", save);
+pauseOnHoverEl.addEventListener("change", save);
 sourceLangEl.addEventListener("change", onSourceLangChange);
 targetLangEl.addEventListener("change", onTargetLangChange);
 swapLangsEl.addEventListener("click", onSwapLangs);

@@ -14,7 +14,35 @@
 
   let tooltip = null;
   let enabled = true;
+  let pauseOnHover = false;
   let shownWord = null;
+  // The video we paused on hover, so we only resume what we paused ourselves.
+  let pausedVideo = null;
+  let resumeTimer = null;
+
+  function pauseVideo() {
+    clearTimeout(resumeTimer);
+    resumeTimer = null;
+    if (!pauseOnHover || pausedVideo) return;
+    const video = document.querySelector("video");
+    if (video && !video.paused) {
+      video.pause();
+      pausedVideo = video;
+    }
+  }
+
+  // Delayed so moving across the gap between two words doesn't flicker
+  // play/pause.
+  function resumeVideo(delay = 300) {
+    if (!pausedVideo || (resumeTimer && delay)) return;
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      const video = pausedVideo;
+      pausedVideo = null;
+      resumeTimer = null;
+      if (video?.paused) video.play().catch(() => {});
+    }, delay);
+  }
 
   function ensureTooltip() {
     if (tooltip) return tooltip;
@@ -73,6 +101,7 @@
 
   async function showWord(word, rect) {
     if (!enabled) return;
+    pauseVideo();
 
     Object.assign(highlight.style, {
       display: "block",
@@ -93,6 +122,7 @@
   }
 
   function clearWord() {
+    resumeVideo();
     if (!shownWord) return;
     shownWord = null;
     highlight.style.display = "none";
@@ -113,6 +143,7 @@
   async function init() {
     const settings = await LagomLens.getSettings();
     enabled = settings.enabled;
+    pauseOnHover = settings.pauseOnHover;
 
     if (!window.LagomLensSite) {
       console.warn("[Lagom Lens] no site adapter loaded for this page");
@@ -126,9 +157,14 @@
   }
 
   browserAPI.storage.onChanged.addListener((changes, area) => {
-    if (area === "sync" && "enabled" in changes) {
+    if (area !== "sync") return;
+    if ("enabled" in changes) {
       enabled = changes.enabled.newValue;
       if (!enabled) clearWord();
+    }
+    if ("pauseOnHover" in changes) {
+      pauseOnHover = changes.pauseOnHover.newValue;
+      if (!pauseOnHover) resumeVideo(0);
     }
   });
 
