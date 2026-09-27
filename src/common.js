@@ -6,6 +6,7 @@ const LagomLens = (() => {
 
   const DEFAULT_SETTINGS = {
     enabled: true,
+    pauseOnHover: true,
     sourceLang: "sv",
     targetLang: "en",
   };
