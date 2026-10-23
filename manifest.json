@@ -2,11 +2,12 @@
   "manifest_version": 3,
   "name": "Lagom Lens",
   "version": "0.4.0",
-  "description": "Hover over subtitles on YouTube and SVT Play to see translation in your chosen language.",
+  "description": "Hover over subtitles on YouTube, SVT Play and Netflix to see translation in your chosen language.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://*.youtube.com/*",
     "https://*.svtplay.se/*",
+    "https://*.netflix.com/*",
     "https://api.mymemory.translated.net/*"
   ],
   "background": {
@@ -24,6 +25,12 @@
       "matches": ["https://*.svtplay.se/*"],
       "js": ["src/common.js", "src/sites/svtplay.js", "src/content.js"],
       "css": ["src/overlay.css", "src/sites/svtplay.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.netflix.com/*"],
+      "js": ["src/common.js", "src/sites/netflix.js", "src/content.js"],
+      "css": ["src/overlay.css"],
       "run_at": "document_idle"
     }
   ],

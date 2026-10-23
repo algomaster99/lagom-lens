@@ -6,7 +6,7 @@
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/cfoohmoihngoecbcgcgdiheeelgfopfe.svg?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4)](https://chromewebstore.google.com/detail/lagom-lens/cfoohmoihngoecbcgcgdiheeelgfopfe)
 
 Lagom Lens is a minimal browser extension which helps you to learn a new language.
-Hover a word in subtitles (YouTube or SVT Play) to see a translation in your chosen language.
+Hover a word in subtitles (YouTube, SVT Play or Netflix) to see a translation in your chosen language.
 
 > [!TIP]
 > **Hold <kbd>Shift</kbd> while hovering** to translate the whole subtitle line instead of just one word.
@@ -46,14 +46,14 @@ Lagom Lens lets you hover over a word and see the translation instantly.
 2. Enable **Developer mode** (top right)
 3. Click **Load unpacked**
 4. Select this folder (`lagom-lens`)
-5. Open a Swedish YouTube video or an SVT Play video, turn on subtitles
+5. Open a Swedish YouTube video, an SVT Play video or a Netflix title, turn on subtitles
 
 ## Install from source (Firefox)
 
 1. Go to `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on…**
 3. Select `manifest.json` inside this folder (not the folder itself)
-4. Open a Swedish YouTube video or an SVT Play video, turn on subtitles
+4. Open a Swedish YouTube video, an SVT Play video or a Netflix title, turn on subtitles
 
 Note: a temporary add-on is removed when Firefox restarts — reload it from
 `about:debugging` again next session.
