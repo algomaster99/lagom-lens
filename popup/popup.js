@@ -13,6 +13,9 @@ const sourceLangEl = document.getElementById("sourceLang");
 const targetLangEl = document.getElementById("targetLang");
 const swapLangsEl = document.getElementById("swapLangs");
 const statusEl = document.getElementById("status");
+const savedCountEl = document.getElementById("savedCount");
+const exportAnkiEl = document.getElementById("exportAnki");
+const savedListEl = document.getElementById("savedList");
 
 function showSaved() {
   statusEl.textContent = "Saved";
@@ -79,6 +82,123 @@ function onSwapLangs() {
   save();
 }
 
+// --- Saved words ------------------------------------------------------------
+
+// Each saved word is its own storage.local entry, keyed "saved:..." (see
+// saveWord in src/common.js). Returns [key, word] pairs, oldest first.
+async function getSavedWords() {
+  const stored = await browserAPI.storage.local.get(null);
+  return Object.entries(stored)
+    .filter(([key]) => key.startsWith("saved:"))
+    .sort(([, a], [, b]) => a.savedAt - b.savedAt);
+}
+
+async function renderSaved() {
+  const saved = await getSavedWords();
+  savedCountEl.textContent = saved.length ? `(${saved.length})` : "";
+  exportAnkiEl.disabled = !saved.length;
+
+  // Newest first -- most likely the one you're looking for.
+  savedListEl.replaceChildren(
+    ...saved.reverse().map(([key, w]) => {
+      const li = document.createElement("li");
+      const text = document.createElement("span");
+      text.className = "saved-word";
+      text.title = w.line || w.word;
+      text.textContent = w.word;
+      const translation = document.createElement("span");
+      translation.className = "saved-translation";
+      translation.textContent = ` — ${w.translation}`;
+      text.appendChild(translation);
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "remove-btn";
+      remove.title = "Remove";
+      remove.setAttribute("aria-label", `Remove ${w.word}`);
+      remove.textContent = "×";
+      remove.addEventListener("click", () => browserAPI.storage.local.remove(key));
+
+      li.append(text, remove);
+      return li;
+    })
+  );
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// The sentence as HTML, with each occurrence of the word in bold.
+function boldWord(line, word) {
+  const re = new RegExp(
+    `(?<![\\p{L}\\p{N}])${escapeRegExp(word)}(?![\\p{L}\\p{N}])`,
+    "giu"
+  );
+  let html = "";
+  let last = 0;
+  for (const match of line.matchAll(re)) {
+    html += `${escapeHtml(line.slice(last, match.index))}<b>${escapeHtml(match[0])}</b>`;
+    last = match.index + match[0].length;
+  }
+  return html + escapeHtml(line.slice(last));
+}
+
+// Always quoted: Anki reads the file as CSV, where a line starting with # is
+// a comment and an unquoted " would start a quoted field.
+function tsvField(text) {
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+// One Basic note per word: the word and its sentence on the front, their
+// meanings on the back. The header lines set up Anki's import dialog; a deck
+// column rather than a #deck header because only a column creates the deck if
+// it's missing. Importing again later is safe -- Anki matches notes on the
+// first field and updates them in place, keeping their review history.
+function toAnkiTsv(saved) {
+  const rows = [
+    "#separator:tab",
+    "#html:true",
+    "#notetype:Basic",
+    "#columns:Front\tBack\tDeck\tTags",
+    "#deck column:3",
+    "#tags column:4",
+  ];
+  for (const [, w] of saved) {
+    let front = `<b>${escapeHtml(w.word)}</b>`;
+    let back = escapeHtml(w.translation);
+    if (w.line) {
+      front += `<br><br><i>${boldWord(w.line, w.word)}</i>`;
+      if (w.lineTranslation) back += `<br><br><i>${escapeHtml(w.lineTranslation)}</i>`;
+    }
+    const tags = `lagom-lens ${w.sourceLang} ${w.site}`;
+    rows.push([front, back, "Lagom Lens", tags].map(tsvField).join("\t"));
+  }
+  return rows.join("\n") + "\n";
+}
+
+async function exportAnki() {
+  const tsv = toAnkiTsv(await getSavedWords());
+  const url = URL.createObjectURL(new Blob([tsv], { type: "text/tab-separated-values" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "lagom-lens-anki.tsv";
+  // In the document, not detached: Firefox ignores click() otherwise.
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Not revoked right away: the download may still be reading it.
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+browserAPI.storage.onChanged.addListener((changes, area) => {
+  if (area === "local") renderSaved();
+});
+
 let prevSourceLang = sourceLangEl.value;
 let prevTargetLang = targetLangEl.value;
 
@@ -87,8 +207,10 @@ pauseOnHoverEl.addEventListener("change", save);
 sourceLangEl.addEventListener("change", onSourceLangChange);
 targetLangEl.addEventListener("change", onTargetLangChange);
 swapLangsEl.addEventListener("click", onSwapLangs);
+exportAnkiEl.addEventListener("click", exportAnki);
 
 load().then(() => {
   prevSourceLang = sourceLangEl.value;
   prevTargetLang = targetLangEl.value;
 });
+renderSaved();

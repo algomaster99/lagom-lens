@@ -81,3 +81,90 @@ input[type="password"] {
   color: #2a8a2a;
   min-height: 14px;
 }
+
+kbd {
+  font-family: inherit;
+  font-size: 10px;
+  padding: 0 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #f6f6f6;
+}
+
+.saved-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
+  font-size: 13px;
+}
+
+.saved-count {
+  color: #666;
+}
+
+.export-btn {
+  font-size: 12px;
+  padding: 3px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.export-btn:disabled {
+  cursor: default;
+  color: #aaa;
+}
+
+.saved-list {
+  list-style: none;
+  margin: 8px 0 0 0;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.saved-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.saved-word {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-translation {
+  color: #666;
+}
+
+.remove-btn {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #999;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background: #f0f0f0;
+  color: #c33;
+}

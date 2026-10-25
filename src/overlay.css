@@ -41,6 +41,12 @@ We draw the overlay span on top of the subtitles. */
   color: #ffe27a;
 }
 
+/* Marks a word already saved for Anki. */
+.svs-tooltip-saved {
+  margin-left: 5px;
+  font-weight: normal;
+}
+
 .svs-tooltip-translated {
   margin-top: 2px;
 }

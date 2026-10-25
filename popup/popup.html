@@ -67,9 +67,16 @@
 
   <p class="hint">
     Hover a word in the subtitles to see its translation.
+    Click it or press <kbd>S</kbd> to save it for Anki.
   </p>
 
   <p class="status" id="status"></p>
+
+  <div class="saved-header">
+    <span>Saved words <span id="savedCount" class="saved-count"></span></span>
+    <button type="button" id="exportAnki" class="export-btn">Export for Anki</button>
+  </div>
+  <ul id="savedList" class="saved-list"></ul>
 
   <script src="popup.js"></script>
 </body>

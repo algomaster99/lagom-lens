@@ -36,9 +36,7 @@ window.LagomLensSite = (() => {
 
     const range = document.createRange();
     const rect = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
-    const parts = [];
     for (const node of nodes) {
-      parts.push(node.textContent.trim());
       range.selectNodeContents(node);
       const r = range.getBoundingClientRect();
       rect.left = Math.min(rect.left, r.left);
@@ -47,7 +45,13 @@ window.LagomLensSite = (() => {
       rect.bottom = Math.max(rect.bottom, r.bottom);
     }
 
-    const text = parts.join(" ").replace(/\s+/g, " ").trim();
+    // Text per segment, not per text node: wrapping words leaves punctuation
+    // in nodes of its own, and joining those would read `idag .`.
+    const text = [...el.querySelectorAll(SEGMENT_SELECTOR)]
+      .map((seg) => seg.textContent)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
     if (!text) return null;
     rect.width = rect.right - rect.left;
     rect.height = rect.bottom - rect.top;
@@ -64,6 +68,11 @@ window.LagomLensSite = (() => {
     const onSubtitleNode = (seg) => {
       if (lens.isEnabled()) LagomLens.wrapWordsIn(seg);
     };
+
+    function showWordEl(el) {
+      const line = readSubtitle(container)?.text;
+      lens.showWord(el.dataset.svsWord, el.getBoundingClientRect(), line);
+    }
 
     function showWholeSubtitle() {
       if (!container?.isConnected) return lens.clearWord();
@@ -83,7 +92,7 @@ window.LagomLensSite = (() => {
       if (!el) return;
       clearTimeout(hideTimer);
       if (shiftHeld) return showWholeSubtitle();
-      lens.showWord(el.dataset.svsWord, el.getBoundingClientRect());
+      showWordEl(el);
     });
 
     document.body.addEventListener("mouseout", (e) => {
@@ -104,7 +113,7 @@ window.LagomLensSite = (() => {
       if (e.key !== "Shift") return;
       shiftHeld = false;
       const wordEl = pointerTarget?.closest?.(".svs-word");
-      if (wordEl) lens.showWord(wordEl.dataset.svsWord, wordEl.getBoundingClientRect());
+      if (wordEl) showWordEl(wordEl);
       else lens.clearWord();
     });
     // Keyup can be missed (e.g. alt-tab while holding Shift).

@@ -142,7 +142,7 @@ window.LagomLensSite = (() => {
       }
 
       const hit = wordAt(pointer.x, pointer.y, el);
-      if (hit) lens.showWord(hit.word, hit.rect);
+      if (hit) lens.showWord(hit.word, hit.rect, readSubtitle(el)?.text);
       else lens.clearWord();
     }
 
