@@ -172,19 +172,28 @@ function tsvField(text) {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
+// Which Anki note a saved word is. Importing again updates the note with this
+// GUID in place, keeping its review history, however much the card's fields
+// have changed since. So this must never change: a different GUID for the same
+// word gives everyone who already imported it a duplicate card. Same goes for
+// the note type -- Anki skips a GUID it already has under another note type.
+function ankiGuid(w) {
+  return `lagom-lens:${w.sourceLang}:${w.targetLang}:${w.word.toLowerCase()}`;
+}
+
 // One Basic note per word: the word and its sentence on the front, their
 // meanings on the back. The header lines set up Anki's import dialog; a deck
 // column rather than a #deck header because only a column creates the deck if
-// it's missing. Importing again later is safe -- Anki matches notes on the
-// first field and updates them in place, keeping their review history.
+// it's missing.
 function toAnkiTsv(saved) {
   const rows = [
     "#separator:tab",
     "#html:true",
     "#notetype:Basic",
-    "#columns:Front\tBack\tDeck\tTags",
+    "#columns:Front\tBack\tDeck\tTags\tGUID",
     "#deck column:3",
     "#tags column:4",
+    "#guid column:5",
   ];
   for (const [, w] of saved) {
     const from = LABELS[w.sourceLang] || LABELS.en;
@@ -201,7 +210,7 @@ function toAnkiTsv(saved) {
       }
     }
     const tags = `lagom-lens ${w.sourceLang} ${w.site}`;
-    rows.push([front, back, "Lagom Lens", tags].map(tsvField).join("\t"));
+    rows.push([front, back, "Lagom Lens", tags, ankiGuid(w)].map(tsvField).join("\t"));
   }
   return rows.join("\n") + "\n";
 }
