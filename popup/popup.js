@@ -186,9 +186,10 @@ function tsvField(text) {
 // Every export holds every saved word, so importing again is the normal case.
 // Anki matches a row to an existing note by its first field, and "keep
 // current" leaves that note as it is: only new words are added, and anything
-// the user changed in Anki survives. The flip side is that a note whose front
-// no longer matches -- because the user edited it, or because this file
-// renders fronts differently -- gets imported again as a second card.
+// the user changed in Anki survives. Anki compares the front's text with the
+// HTML stripped, case-sensitively: restyling fronts here is safe, but a front
+// whose words differ -- edited by the user, saved from another line, or with
+// labels changed here -- gets imported as a second card.
 function toAnkiTsv(saved) {
   const rows = [
     "#separator:tab",
