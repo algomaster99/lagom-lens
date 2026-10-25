@@ -5,9 +5,11 @@
 // translation lookup and the enabled/disabled state.
 //
 // An adapter defines window.LagomLensSite with:
-//   observe(lens): start watching this player. Call lens.showWord(word, rect)
-//     when the pointer is over a word, lens.clearWord() when it leaves, and
-//     lens.isEnabled() before doing any work of its own.
+//   observe(lens): start watching this player. Call
+//     lens.showWord(word, rect, line) when the pointer is over a word -- line
+//     is the whole subtitle it's in, kept as the example sentence if the word
+//     gets saved -- lens.clearWord() when it leaves, and lens.isEnabled()
+//     before doing any work of its own.
 
 (function () {
   const browserAPI = typeof browser !== "undefined" ? browser : chrome;
@@ -15,7 +17,10 @@
   let tooltip = null;
   let enabled = true;
   let pauseOnHover = true;
-  let shownWord = null;
+  // What the tooltip is showing: { key, word, line, rect, translation, saved }.
+  // translation is the lookup's promise, so saving a word that's still
+  // loading just waits for it.
+  let shown = null;
   // The video we paused on hover, so we only resume what we paused ourselves.
   let pausedVideo = null;
   let resumeTimer = null;
@@ -66,7 +71,7 @@
     t.style.display = "block";
   }
 
-  function showResult(rect, word, result) {
+  function showResult(rect, word, result, saved) {
     const t = ensureTooltip();
     positionTooltip(rect);
     if (result.error || !result.text) {
@@ -78,6 +83,12 @@
       const original = document.createElement("div");
       original.className = "svs-tooltip-original";
       original.textContent = word;
+      if (saved) {
+        const star = document.createElement("span");
+        star.className = "svs-tooltip-saved";
+        star.textContent = "★";
+        original.appendChild(star);
+      }
       const translated = document.createElement("div");
       translated.className = "svs-tooltip-translated";
       translated.textContent = result.text;
@@ -99,7 +110,7 @@
 
   // --- The adapter-facing API ---------------------------------------------
 
-  async function showWord(word, rect) {
+  async function showWord(word, rect, line) {
     if (!enabled) return;
     pauseVideo();
 
@@ -113,24 +124,96 @@
     // Keyed by position too: the same word can appear twice in one line, and
     // hovering the second one should move the tooltip.
     const key = `${word}@${Math.round(rect.left)}`;
-    if (key === shownWord) return; // already showing (or fetching) this one
-    shownWord = key;
+    if (key === shown?.key) return; // already showing (or fetching) this one
+    const entry = { key, word, line, rect, translation: LagomLens.translateWord(word) };
+    shown = entry;
 
     showLoading(rect);
-    const result = await LagomLens.translateWord(word);
-    if (shownWord === key) showResult(rect, word, result);
+    const [result, saved] = await Promise.all([
+      entry.translation,
+      LagomLens.isSaved(word),
+    ]);
+    if (shown === entry) showResult(rect, word, result, saved || entry.saved);
   }
 
   function clearWord() {
     resumeVideo();
-    if (!shownWord) return;
-    shownWord = null;
+    if (!shown) return;
+    shown = null;
     highlight.style.display = "none";
     hideTooltip();
   }
 
   const lens = { showWord, clearWord, isEnabled: () => enabled };
 
+  // --- Saving words for Anki -----------------------------------------------
+
+  async function saveShownWord() {
+    const entry = shown;
+    if (!entry || entry.saved) return;
+    const result = await entry.translation;
+    if (!result.text) return;
+    // Star it now: saving also translates the line, which can take a moment.
+    entry.saved = true;
+    if (shown === entry) showResult(entry.rect, entry.word, result, true);
+    await LagomLens.saveWord({
+      word: entry.word,
+      translation: result.text,
+      line: entry.line,
+    });
+  }
+
+  function isOnShownWord(e) {
+    if (!shown || e.button !== 0) return false;
+    const r = highlight.getBoundingClientRect();
+    return (
+      e.clientX >= r.left && e.clientX <= r.right &&
+      e.clientY >= r.top && e.clientY <= r.bottom
+    );
+  }
+
+  function swallow(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+
+  // Clicking the shown word saves it. The whole press is swallowed, or the
+  // player would also play/pause on it (and fullscreen on a double click).
+  // That's done on window in the capture phase, which runs before anything
+  // the page has bound -- and checks the highlight's box rather than the
+  // event target, since on Netflix the word sits under the player's UI. A
+  // release only counts if the press did, so a drag that started elsewhere
+  // (say, the seek bar) still gets to end over a word.
+  let pressedOnWord = false;
+
+  function onPress(e) {
+    pressedOnWord = isOnShownWord(e);
+    if (pressedOnWord) swallow(e);
+  }
+
+  function onRelease(e) {
+    if (pressedOnWord) swallow(e);
+  }
+
+  function onClick(e) {
+    if (!pressedOnWord) return;
+    pressedOnWord = false;
+    swallow(e);
+    saveShownWord();
+  }
+
+  window.addEventListener("pointerdown", onPress, true);
+  window.addEventListener("mousedown", onPress, true);
+  window.addEventListener("pointerup", onRelease, true);
+  window.addEventListener("mouseup", onRelease, true);
+  window.addEventListener("click", onClick, true);
+  window.addEventListener(
+    "dblclick",
+    (e) => {
+      if (isOnShownWord(e)) swallow(e);
+    },
+    true
+  );
 
   function relocateOverlays() {
     const home = document.fullscreenElement || document.body;

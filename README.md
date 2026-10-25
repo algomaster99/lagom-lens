@@ -14,6 +14,30 @@ Hover a word in subtitles (YouTube, SVT Play or Netflix) to see a translation in
 It works by manipulating the DOM elements of the page and then querying
 https://mymemory.translated.net/ for translations.
 
+## Revise with Anki
+
+**Click a word while its translation is showing** to save it,
+together with the subtitle line you heard it in as an example sentence.
+Hold <kbd>Shift</kbd> while clicking to save the whole line instead.
+Saved words get a ★ in the tooltip, and are listed in the extension's popup.
+
+To revise them with [Anki](https://apps.ankiweb.net/):
+
+1. Click **Export for Anki** in the popup. This downloads `lagom-lens-anki.tsv`.
+2. In Anki, choose **File → Import** and pick the file.
+3. Check that the note type is **Basic** and **If matches** is **Keep current**,
+   then click **Import**.
+
+Each word becomes a card in a **Lagom Lens** deck. The front shows the word and its
+sentence, and the back shows their translations.
+You can export again whenever you've saved more words. Only the new ones are added:
+cards you already have are left as they are, including anything you changed in them.
+If you edit the front of a card, though, the next import adds the original as a
+second card.
+
+Once your words are in Anki you can clear the list with **Delete all** in the popup,
+so that your next export only has the words you save after that.
+
 ## Why?
 
 I was tired of having to pause videos, type words into my translator, and then resume the video.

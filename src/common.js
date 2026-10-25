@@ -1,4 +1,5 @@
-// Shared helpers: settings storage + translation lookups + tiny cache.
+// Shared helpers: settings storage + translation lookups + tiny cache +
+// saved words.
 // Loaded before the site-specific script and content.js on every page.
 
 const LagomLens = (() => {
@@ -80,6 +81,42 @@ const LagomLens = (() => {
     return result;
   }
 
+  // Words saved for Anki live in storage.local, not sync -- the list can
+  // outgrow sync's quota. One entry per word, so two saves in flight at once
+  // (two words from the same line, or two tabs) can't overwrite each other.
+  function savedKey(word, settings) {
+    return `saved:${cacheKey(word, settings.sourceLang, settings.targetLang)}`;
+  }
+
+  async function isSaved(word) {
+    const key = savedKey(word, await getSettings());
+    const stored = await browserAPI.storage.local.get(key);
+    return key in stored;
+  }
+
+  // `line` is the subtitle the word was heard in. It's translated as well, so
+  // the card's example sentence has a meaning on the back too.
+  async function saveWord({ word, translation, line }) {
+    const settings = await getSettings();
+    if (await isSaved(word)) return; // keep the sentence it was first saved with
+
+    if (!line || line === word) line = ""; // e.g. saved a whole line with Shift
+    const lineTranslation = line ? (await translateWord(line)).text || "" : "";
+
+    await browserAPI.storage.local.set({
+      [savedKey(word, settings)]: {
+        word,
+        translation,
+        line,
+        lineTranslation,
+        sourceLang: settings.sourceLang,
+        targetLang: settings.targetLang,
+        site: location.hostname.replace(/^www\./, ""),
+        savedAt: Date.now(),
+      },
+    });
+  }
+
   // Split a caption line into word-spans without breaking existing markup
   // structure the player relies on — operates on leaf text nodes only.
   function wrapWordsInTextNode(textNode) {
@@ -155,6 +192,8 @@ const LagomLens = (() => {
   return {
     getSettings,
     translateWord,
+    isSaved,
+    saveWord,
     wrapWordsIn,
   };
 })();
