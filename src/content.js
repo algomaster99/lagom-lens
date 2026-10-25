@@ -215,23 +215,6 @@
     true
   );
 
-  // So does S, swallowed the same way so a site that binds S itself (Netflix
-  // skips the intro on it) doesn't act on it too. Shift+S saves a whole line.
-  window.addEventListener(
-    "keydown",
-    (e) => {
-      if (!shown || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.key.toLowerCase() !== "s") return;
-      const t = e.target;
-      if (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName)) {
-        return;
-      }
-      swallow(e);
-      saveShownWord();
-    },
-    true
-  );
-
   function relocateOverlays() {
     const home = document.fullscreenElement || document.body;
     if (tooltip && tooltip.parentElement !== home) home.appendChild(tooltip);

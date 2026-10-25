@@ -13,8 +13,9 @@ Hover a word in subtitles (YouTube, SVT Play or Netflix) to see a translation in
 
 ## Revise with Anki
 
-**Click a word (or press <kbd>S</kbd>) while its translation is showing** to save it,
+**Click a word while its translation is showing** to save it,
 together with the subtitle line you heard it in as an example sentence.
+Hold <kbd>Shift</kbd> while clicking to save the whole line instead.
 Saved words get a ★ in the tooltip, and are listed in the extension's popup.
 
 To revise them with [Anki](https://apps.ankiweb.net/):

@@ -82,15 +82,6 @@ input[type="password"] {
   min-height: 14px;
 }
 
-kbd {
-  font-family: inherit;
-  font-size: 10px;
-  padding: 0 4px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background: #f6f6f6;
-}
-
 .saved-header {
   display: flex;
   justify-content: space-between;
