@@ -159,3 +159,32 @@ input[type="password"] {
   background: #f0f0f0;
   color: #c33;
 }
+
+.saved-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.text-btn {
+  padding: 0 2px;
+  border: none;
+  background: none;
+  color: #444;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.text-btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.text-btn:disabled {
+  cursor: default;
+  color: #aaa;
+}
+
+.text-btn.danger:not(:disabled) {
+  color: #c33;
+}

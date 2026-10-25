@@ -16,6 +16,10 @@ const statusEl = document.getElementById("status");
 const savedCountEl = document.getElementById("savedCount");
 const exportAnkiEl = document.getElementById("exportAnki");
 const savedListEl = document.getElementById("savedList");
+const deleteAllEl = document.getElementById("deleteAll");
+const confirmDeleteAllEl = document.getElementById("confirmDeleteAll");
+const confirmDeleteEl = document.getElementById("confirmDelete");
+const cancelDeleteEl = document.getElementById("cancelDelete");
 
 function showSaved() {
   statusEl.textContent = "Saved";
@@ -97,6 +101,8 @@ async function renderSaved() {
   const saved = await getSavedWords();
   savedCountEl.textContent = saved.length ? `(${saved.length})` : "";
   exportAnkiEl.disabled = !saved.length;
+  deleteAllEl.disabled = !saved.length;
+  if (!saved.length) showDeleteConfirm(false);
 
   // Newest first -- most likely the one you're looking for.
   savedListEl.replaceChildren(
@@ -227,6 +233,19 @@ async function exportAnki() {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
+// Two steps, since there's no undo. Separate from exporting on purpose: an
+// export can fail or be cancelled, and the words shouldn't go with it.
+function showDeleteConfirm(show) {
+  deleteAllEl.hidden = show;
+  confirmDeleteAllEl.hidden = !show;
+}
+
+async function deleteAll() {
+  const saved = await getSavedWords();
+  await browserAPI.storage.local.remove(saved.map(([key]) => key));
+  showDeleteConfirm(false);
+}
+
 browserAPI.storage.onChanged.addListener((changes, area) => {
   if (area === "local") renderSaved();
 });
@@ -240,6 +259,9 @@ sourceLangEl.addEventListener("change", onSourceLangChange);
 targetLangEl.addEventListener("change", onTargetLangChange);
 swapLangsEl.addEventListener("click", onSwapLangs);
 exportAnkiEl.addEventListener("click", exportAnki);
+deleteAllEl.addEventListener("click", () => showDeleteConfirm(true));
+cancelDeleteEl.addEventListener("click", () => showDeleteConfirm(false));
+confirmDeleteEl.addEventListener("click", deleteAll);
 
 load().then(() => {
   prevSourceLang = sourceLangEl.value;

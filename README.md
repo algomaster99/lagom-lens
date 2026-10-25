@@ -35,6 +35,9 @@ cards you already have are left as they are, including anything you changed in t
 If you edit the front of a card, though, the next import adds the original as a
 second card.
 
+Once your words are in Anki you can clear the list with **Delete all** in the popup,
+so that your next export only has the words you save after that.
+
 ## Why?
 
 I was tired of having to pause videos, type words into my translator, and then resume the video.

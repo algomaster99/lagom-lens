@@ -77,6 +77,14 @@
     <button type="button" id="exportAnki" class="export-btn">Export for Anki</button>
   </div>
   <ul id="savedList" class="saved-list"></ul>
+  <div class="saved-footer">
+    <button type="button" id="deleteAll" class="text-btn danger">Delete all</button>
+    <span id="confirmDeleteAll" hidden>
+      Delete all saved words?
+      <button type="button" id="confirmDelete" class="text-btn danger">Delete</button>
+      <button type="button" id="cancelDelete" class="text-btn">Cancel</button>
+    </span>
+  </div>
 
   <script src="popup.js"></script>
 </body>
