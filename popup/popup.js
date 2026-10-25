@@ -214,7 +214,7 @@ function toAnkiTsv(saved) {
         back += `<br><br>${to.sentence}: <i>${escapeHtml(w.lineTranslation)}</i>`;
       }
     }
-    const tags = `lagom-lens ${w.sourceLang} ${w.site}`;
+    const tags = `${w.sourceLang}-${w.targetLang} ${w.site}`;
     rows.push([front, back, "Lagom Lens", tags].map(tsvField).join("\t"));
   }
   return rows.join("\n") + "\n";
