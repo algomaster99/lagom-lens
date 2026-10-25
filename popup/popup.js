@@ -148,6 +148,24 @@ function boldWord(line, word) {
   return html + escapeHtml(line.slice(last));
 }
 
+// "Word" and "Sentence" in each language on offer. A card's front is labelled
+// in the language being learned and its back in the one it's translated to.
+const LABELS = {
+  sv: { word: "Ord", sentence: "Mening" },
+  en: { word: "Word", sentence: "Sentence" },
+  es: { word: "Palabra", sentence: "Frase" },
+  de: { word: "Wort", sentence: "Satz" },
+  fr: { word: "Mot", sentence: "Phrase" },
+  it: { word: "Parola", sentence: "Frase" },
+  pt: { word: "Palavra", sentence: "Frase" },
+  nl: { word: "Woord", sentence: "Zin" },
+  pl: { word: "Słowo", sentence: "Zdanie" },
+  ru: { word: "Слово", sentence: "Предложение" },
+  ja: { word: "単語", sentence: "文" },
+  zh: { word: "单词", sentence: "句子" },
+  hi: { word: "शब्द", sentence: "वाक्य" },
+};
+
 // Always quoted: Anki reads the file as CSV, where a line starting with # is
 // a comment and an unquoted " would start a quoted field.
 function tsvField(text) {
@@ -169,11 +187,18 @@ function toAnkiTsv(saved) {
     "#tags column:4",
   ];
   for (const [, w] of saved) {
-    let front = `<b>${escapeHtml(w.word)}</b>`;
-    let back = escapeHtml(w.translation);
+    const from = LABELS[w.sourceLang] || LABELS.en;
+    const to = LABELS[w.targetLang] || LABELS.en;
+    // A line saved with Shift is a sentence. Words never contain spaces --
+    // every site adapter splits on them.
+    const kind = /\s/.test(w.word) ? "sentence" : "word";
+    let front = `${from[kind]}: <b>${escapeHtml(w.word)}</b>`;
+    let back = `${to[kind]}: ${escapeHtml(w.translation)}`;
     if (w.line) {
-      front += `<br><br><i>${boldWord(w.line, w.word)}</i>`;
-      if (w.lineTranslation) back += `<br><br><i>${escapeHtml(w.lineTranslation)}</i>`;
+      front += `<br><br>${from.sentence}: <i>${boldWord(w.line, w.word)}</i>`;
+      if (w.lineTranslation) {
+        back += `<br><br>${to.sentence}: <i>${escapeHtml(w.lineTranslation)}</i>`;
+      }
     }
     const tags = `lagom-lens ${w.sourceLang} ${w.site}`;
     rows.push([front, back, "Lagom Lens", tags].map(tsvField).join("\t"));
